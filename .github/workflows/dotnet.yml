@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Generate self-signed certificate
+      run: |
+        openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=localhost"
+        openssl pkcs12 -export -out certificate.pfx -inkey key.pem -in cert.pem -password pass:${{ secrets.CERTIFICATE_PASSWORD }}
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -27,13 +31,10 @@ jobs:
     - name: Start API in background
       run: |
         nohup dotnet run --project Api &
-    - name: Wait for API to start
-      run: |
-        sleep 3
-    - name: Add Dev Https Certs
-      run: sudo dotnet dev-certs --trust
-        
     - name: Run Tests
+      env:
+        ASPNETCORE_Kestrel__Certificates__Default__Password: ${{ secrets.CERTIFICATE_PASSWORD }}
+        ASPNETCORE_Kestrel__Certificates__Default__Path: ${{ github.workspace }}/certificate.pfx
       run: dotnet test --no-build --verbosity normal
       
     - name: Kill API process
