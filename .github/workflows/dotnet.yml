@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: github-runner
     
-
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -34,7 +33,7 @@ jobs:
     - name: Add certificate
       run: |
         sudo apt-get install ca-certificates
-        echo "${{ secrets.SELF_SIGNED_CERT }}" | base64 --decode > mycert.pem
+        echo "${{ secrets.SELF_SIGNED_CERT }}" | base64 -d > mycert.pem
         sudo cp mycert.pem /usr/local/share/ca-certificates/
         sudo update-ca-certificates
         sudo cp cert.pem /etc/ssl/certs/
