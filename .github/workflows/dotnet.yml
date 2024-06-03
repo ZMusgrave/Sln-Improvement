@@ -13,7 +13,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    environment: github-runner
+    
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -27,12 +28,15 @@ jobs:
     - name: Start API in background
       run: |
         nohup dotnet run --project Api &
-    - name: Wait for API to start
+    - name: Install curl for debugging
+      run: sudo apt-get install -y curl
+    - name: Add certificate
       run: |
-        sleep 3
-    - name: Add Dev Https Certs
-      run: sudo dotnet dev-certs --trust
-        
+        sudo apt-get install ca-certificates
+        echo "${{ secrets.SELF_SIGNED_CERT }}" | base64 -d > mycert.pem
+        sudo cp mycert.pem /usr/local/share/ca-certificates/
+        sudo update-ca-certificates
+        sudo cp cert.pem /etc/ssl/certs/
     - name: Run Tests
       run: dotnet test --no-build --verbosity normal
       
