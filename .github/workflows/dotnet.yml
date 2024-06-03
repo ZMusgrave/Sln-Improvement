@@ -29,14 +29,15 @@ jobs:
     - name: Start API in background
       run: |
         nohup dotnet run --project Api &
-    - name: Install development certificates
-      run: dotnet dev-certs https --trust
+    - name: Install curl for debugging
+      run: sudo apt-get install -y curl
     - name: Add certificate
       run: |
         sudo apt-get install ca-certificates
-        echo "${{ secrets.CERTIFICATE }}" | base64 --decode > mycert.pem
+        echo "${{ secrets.SELF_SIGNED_CERT }}" | base64 --decode > mycert.pem
         sudo cp mycert.pem /usr/local/share/ca-certificates/
         sudo update-ca-certificates
+        sudo cp cert.pem /etc/ssl/certs/
     - name: Run Tests
       run: dotnet test --no-build --verbosity normal
       
