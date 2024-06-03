@@ -29,6 +29,8 @@ jobs:
     - name: Start API in background
       run: |
         nohup dotnet run --project Api &
+    - name: Install development certificates
+      run: dotnet dev-certs https --trust
     - name: Add certificate
       run: |
         sudo apt-get install ca-certificates
